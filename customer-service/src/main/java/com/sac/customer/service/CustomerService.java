@@ -42,7 +42,14 @@ public class CustomerService {
     }
 
     public String deleteAllCustomers() {
-        return "All customers deleted Successfully !!!";
+         try {
+        // Delete all customers using the customerRepository
+        customerRepository.deleteAll();
+        return "All customers deleted successfully!";
+    } catch (Exception e) {
+        LOG.error("Error deleting customers: ", e);
+        return "An error occurred while deleting customers!";
+    }
     }
 
 }
