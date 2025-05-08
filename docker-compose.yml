@@ -50,7 +50,11 @@ services:
     depends_on:
       - mysql
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
   eureka-server:
     container_name: eureka-server
@@ -60,7 +64,11 @@ services:
     depends_on:
       - config-server
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
   admin-server:
     container_name: admin-server
@@ -70,7 +78,11 @@ services:
     depends_on:
       - eureka-server
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
   zuul-server:
     container_name: zuul-server
@@ -80,7 +92,11 @@ services:
     depends_on:
       - eureka-server
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
   customer-service:
     container_name: customer-service
@@ -91,7 +107,11 @@ services:
       - config-server
       - kafka
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
   order-service:
     container_name: order-service
@@ -101,7 +121,11 @@ services:
     depends_on:
       - customer-service
     entrypoint: /bin/sh
-    command: -c "sleep 20 && exec java -jar /app.jar"
+    command: >
+    -c "
+    echo 'Waiting 20s for dependencies...'; sleep 20;
+    java -jar /app.jar
+    "
 
 
 volumes:
