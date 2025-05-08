@@ -53,6 +53,17 @@ services:
     command: >
       -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
 
+  oauth2-server:
+    container_name: oauth2-server
+    build: oauth2-server
+    expose:
+      - "8082:8082"
+    depends_on:
+      - config-server
+    entrypoint: /bin/sh
+    command: >
+      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"   
+
   eureka-server:
     container_name: eureka-server
     build: ./eureka-server
