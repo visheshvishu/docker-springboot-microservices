@@ -62,7 +62,10 @@ services:
       - config-server
     entrypoint: /bin/sh
     command: >
-      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"   
+      -c "
+      while ! (nc -z config-server 8081); do sleep 5; echo 'Waiting for config-server to start-up...'; done;
+      java -jar  /app.jar
+      "   
 
   eureka-server:
     container_name: eureka-server
@@ -107,7 +110,10 @@ services:
       - kafka
     entrypoint: /bin/sh
     command: >
-      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+      -c "
+      while ! (nc -z oauth2-server 8082); do sleep 5; echo 'Waiting for oauth2-server to start-up...'; done;
+      java -jar  /app.jar
+      "
 
   order-service:
     container_name: order-service
@@ -118,7 +124,10 @@ services:
       - customer-service
     entrypoint: /bin/sh
     command: >
-      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+      -c "
+      while ! (nc -z customer-service 8085); do sleep 5; echo 'Waiting for customer-service to start-up...'; done;
+      java -jar  /app.jar
+      "
 
 
 volumes:
