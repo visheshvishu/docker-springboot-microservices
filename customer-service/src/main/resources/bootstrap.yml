@@ -10,14 +10,14 @@ spring:
     config:
       enabled: true
       hostname: config-server
-      uri: http://34.131.200.139:8081
+      uri: http://config-server:8081
       fail-fast: false
   boot:
     admin:
       client:
-        url: http://34.131.200.139:8086
+        url: http://admin-server:8086
         instance:
-          service-base-url: http://34.131.200.139:8085
+          service-base-url: http://customer-service:8085
 
 management:
   endpoints:
@@ -33,7 +33,7 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     service-url:
-      defaultZone: http://34.131.200.139:8080/eureka/
+      defaultZone: http://eureka-server:8080/eureka/
     instance-info-replication-interval-seconds: 30
     registry-fetch-interval-seconds: 30
   instance:
