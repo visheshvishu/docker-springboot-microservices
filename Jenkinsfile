@@ -116,6 +116,7 @@ pipeline {
                 }
             }        
         }
+    }
         
         stage('Run with Docker Compose') {
             steps {
