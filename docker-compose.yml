@@ -44,7 +44,7 @@ services:
 
   config-server:
     container_name: config-server
-    build: ./config-server
+    image: visheshvishu/config-server:latest
     ports:
       - "8081:8081"
     depends_on:
@@ -55,7 +55,7 @@ services:
 
   oauth2-server:
     container_name: oauth2-server
-    build: oauth2-server
+    image: visheshvishu/oauth2-server:latest
     expose:
       - "8082:8082"
     depends_on:
@@ -69,7 +69,7 @@ services:
 
   eureka-server:
     container_name: eureka-server
-    build: ./eureka-server
+    image: visheshvishu/eureka-server:latest
     ports:
       - "8080:8080"
     depends_on:
@@ -80,7 +80,7 @@ services:
 
   admin-server:
     container_name: admin-server
-    build: ./admin-server
+    image: visheshvishu/admin-server:latest
     ports:
       - "8086:8086"
     depends_on:
@@ -91,7 +91,7 @@ services:
 
   zuul-server:
     container_name: zuul-server
-    build: ./zuul-server
+    image: visheshvishu/zuul-server:latest
     ports:
       - "8083:8083"
     depends_on:
@@ -102,7 +102,7 @@ services:
 
   customer-service:
     container_name: customer-service
-    build: ./customer-service
+    image: visheshvishu/customer-service:latest
     ports:
       - "8085:8085"
     depends_on:
@@ -117,7 +117,7 @@ services:
 
   order-service:
     container_name: order-service
-    build: ./order-service
+    image: visheshvishu/order-service:latest
     ports:
       - "8084:8084"
     depends_on:
