@@ -43,13 +43,13 @@ pipeline {
         }
       
 
-        // stage('SonarQube Scan') {
-        //     steps {
-        //         script {
-        //             sonar_scan("$ScannerHome", "sonar", "springboot-app", "springboot-app", "v1", ".")
-        //         }
-        //     }
-        // }
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    sonar_scan("$ScannerHome", "sonar", "springboot-app", "springboot-app", "v1", ".")
+                }
+            }
+        }
 
       
 
