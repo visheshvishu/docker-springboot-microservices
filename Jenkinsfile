@@ -141,14 +141,14 @@ pipeline {
       emailext(
         subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
         body: "Job Succeeded: ${env.BUILD_URL}",
-        to: 'vishesh.gupta@oodles.io'
+        to: 'atif.hasan@oodles.io'
       )
     }
     failure {
       emailext(
         subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
         body: "Job Failed: ${env.BUILD_URL}",
-        to: 'vishesh.gupta@oodles.io'
+        to: 'atif.hasan@oodles.io'
       )
     }
   }
