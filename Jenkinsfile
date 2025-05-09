@@ -11,9 +11,9 @@ pipeline {
         scannerHome = tool 'sonar' 
     }
 
-  tools {
-    maven 'Maven'
-  }
+  // tools {
+  //   maven 'Maven'
+  // }
 
     stages {
 
