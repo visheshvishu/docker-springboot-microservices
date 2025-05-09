@@ -53,13 +53,13 @@ pipeline {
 
       
 
-        // stage('Quality Gate') {
-        //     steps {
-        //         script {
-        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
-        //         }
-        //     }
-        // }    
+        stage('Quality Gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
+                }
+            }
+        }    
         
         // stage('OWASP Dependency Check') {
         //     steps {
