@@ -32,6 +32,15 @@ pipeline {
             }
         }
 
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    sonar_scan("$ScannerHome", "sonar", "springboot-app", "springboot-app", "v1", ".")
+                }
+            }
+        }
+        
+
        stage('Maven Build') {
             steps {
             //     withMaven(maven: 'Maven') {
@@ -39,15 +48,6 @@ pipeline {
             //    }
              
                 sh 'mvn clean install'
-            }
-        }
-      
-
-        stage('SonarQube Scan') {
-            steps {
-                script {
-                    sonar_scan("$ScannerHome", "sonar", "springboot-app", "springboot-app", "v1", ".")
-                }
             }
         }
 
