@@ -62,17 +62,17 @@ pipeline {
             }
         }    
         
-        // stage('OWASP Dependency Check') {
-        //     steps {
-        //         dependencyCheck additionalArguments: ''' 
-        //             -o './'
-        //             -s './'
-        //             -f 'ALL' 
-        //             --prettyPrint''', odcInstallation: 'owasp'
+        stage('OWASP Dependency Check') {
+            steps {
+                dependencyCheck additionalArguments: ''' 
+                    -o './'
+                    -s './'
+                    -f 'ALL' 
+                    --prettyPrint''', odcInstallation: 'owasp'
         
-        // dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-        //     }
-        // }
+        dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+            }
+        }
         
         stage('Build Docker Image') {
             steps {
