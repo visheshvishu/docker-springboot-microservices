@@ -28,6 +28,7 @@ pipeline {
                 script{
                      // git branch: 'main', url: 'https://github.com/visheshvishu/flask-app.git'
                     git_checkout("https://github.com/visheshvishu/docker-springboot-microservices.git","main")
+                    sh 'rm -rf frontend'
                 }
             }
         }
