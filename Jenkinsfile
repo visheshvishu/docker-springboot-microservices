@@ -65,7 +65,7 @@ pipeline {
         stage('OWASP Dependency Check') {
             steps {
                 dependencyCheck additionalArguments: ''' 
-                    -o './'
+                    -o './owasp-report'
                     -s './'
                     -f 'ALL' 
                     --prettyPrint''', odcInstallation: 'owasp'
