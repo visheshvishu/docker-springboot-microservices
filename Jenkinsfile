@@ -96,6 +96,32 @@ pipeline {
             }
         }
       }
+
+        stage('Trivy Scan Docker Images') {
+    steps {
+        script {
+            def services = [
+                'admin-server',
+                'config-server',
+                'eureka-server',
+                'oauth2-server',
+                'customer-service',
+                'order-service',
+                'zuul-server'
+            ]
+
+            for (service in services) {
+                def imageName = "${service}:latest"
+
+                echo "Scanning image ${imageName} with Trivy..."
+                sh """
+                    trivy image --exit-code 1 --severity CRITICAL,HIGH --format table -o trivy-${service}.txt ${imageName} || true
+                """
+                archiveArtifacts artifacts: "trivy-${service}.txt", fingerprint: true
+            }
+        }
+    }
+}
         
          stage('push to dockerhub') {
             steps {
