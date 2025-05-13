@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: e_commerce
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_swarm:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - micro_net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - micro_net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    restart: always
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://kafka:19092,PLAINTEXT_EXTERNAL://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://:19092,PLAINTEXT_EXTERNAL://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    networks:
+      - micro_net
+
+  config-server:
+    image: visheshvishu/config-server:latest
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+    entrypoint: /bin/sh
+    command: >
+      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+    networks:
+      - micro_net
+
+  oauth2-server:
+    image: visheshvishu/oauth2-server:latest
+    ports:
+      - "8082:8082"
+    depends_on:
+      - config-server
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z config-server 8081); do sleep 5; echo 'Waiting for config-server to start-up...'; done;
+      java -jar /app.jar
+      "
+    networks:
+      - micro_net
+
+  eureka-server:
+    image: visheshvishu/eureka-server:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+    entrypoint: /bin/sh
+    command: >
+      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+    networks:
+      - micro_net
+
+  admin-server:
+    image: visheshvishu/admin-server:latest
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    entrypoint: /bin/sh
+    command: >
+      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+    networks:
+      - micro_net
+
+  zuul-server:
+    image: visheshvishu/zuul-server:latest
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+    entrypoint: /bin/sh
+    command: >
+      -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
+    networks:
+      - micro_net
+
+  customer-service:
+    image: visheshvishu/customer-service:latest
+    ports:
+      - "8085:8085"
+    depends_on:
+      - config-server
+      - kafka
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z oauth2-server 8082); do sleep 5; echo 'Waiting for oauth2-server to start-up...'; done;
+      java -jar /app.jar
+      "
+    networks:
+      - micro_net
+
+  order-service:
+    image: visheshvishu/order-service:latest
+    ports:
+      - "8084:8084"
+    depends_on:
+      - customer-service
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z customer-service 8085); do sleep 5; echo 'Waiting for customer-service to start-up...'; done;
+      java -jar /app.jar
+      "
+    networks:
+      - micro_net
+
+volumes:
+  mysql_data_swarm:
+
+networks:
+  micro_net:
+    driver: overlay
