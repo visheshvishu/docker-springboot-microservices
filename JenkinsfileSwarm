@@ -73,8 +73,18 @@ pipeline {
                         dependencyCheckPublisher pattern: 'owasp-report/dependency-check-report.xml'
                     }
                 }
+            }
+        }
 
-                stage('Trivy Scan Docker Images') {
+        stage('SonarQube Quality Gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
+                }
+            }
+        }
+
+        stage('Trivy Scan Docker Images') {
                     steps {
                         script {
                             def services = [
@@ -102,16 +112,6 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
-
-        stage('SonarQube Quality Gate') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
-                }
-            }
-        }
 
         stage('Push to Docker Hub') {
             steps {
