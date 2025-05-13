@@ -97,34 +97,34 @@ pipeline {
         }
       }
 
-//         stage('Trivy Scan Docker Images') {
-//     steps {
-//         script {
-//             def services = [
-//                 'admin-server',
-//                 'config-server',
-//                 'eureka-server',
-//                 'oauth2-server',
-//                 'customer-service',
-//                 'order-service',
-//                 'zuul-server'
-//             ]
+        stage('Trivy Scan Docker Images') {
+    steps {
+        script {
+            def services = [
+                'admin-server',
+                'config-server',
+                'eureka-server',
+                'oauth2-server',
+                'customer-service',
+                'order-service',
+                'zuul-server'
+            ]
 
-//             sh 'mkdir -p trivy-reports' // Create folder if not exists
+            sh 'mkdir -p trivy-reports' // Create folder if not exists
 
-//             for (service in services) {
-//                 def imageName = "${service}:latest"
+            for (service in services) {
+                def imageName = "${service}:latest"
 
-//                 echo "Scanning image ${imageName} with Trivy..."
-//                 sh """
-//                     trivy image --exit-code 1 --severity CRITICAL,HIGH --format table -o trivy-reports/trivy-${service}.txt ${imageName} || true
-//                 """
-//             }
+                echo "Scanning image ${imageName} with Trivy..."
+                sh """
+                    trivy image --exit-code 1 --severity CRITICAL,HIGH --format table -o trivy-reports/trivy-${service}.txt ${imageName} || true
+                """
+            }
 
-//             archiveArtifacts artifacts: 'trivy-reports/*.txt', fingerprint: true
-//         }
-//     }
-// }
+            archiveArtifacts artifacts: 'trivy-reports/*.txt', fingerprint: true
+        }
+    }
+}
 
         
          stage('push to dockerhub') {
