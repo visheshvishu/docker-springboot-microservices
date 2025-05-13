@@ -64,6 +64,10 @@ services:
       -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   oauth2-server:
     image: visheshvishu/oauth2-server:latest
@@ -79,6 +83,10 @@ services:
       "
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   eureka-server:
     image: visheshvishu/eureka-server:latest
@@ -91,6 +99,10 @@ services:
       -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   admin-server:
     image: visheshvishu/admin-server:latest
@@ -103,6 +115,10 @@ services:
       -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   zuul-server:
     image: visheshvishu/zuul-server:latest
@@ -115,6 +131,10 @@ services:
       -c "echo 'Waiting 20s for dependencies...'; sleep 20; java -jar /app.jar"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   customer-service:
     image: visheshvishu/customer-service:latest
@@ -131,6 +151,10 @@ services:
       "
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   order-service:
     image: visheshvishu/order-service:latest
@@ -146,6 +170,10 @@ services:
       "
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
 volumes:
   mysql_data_swarm:
