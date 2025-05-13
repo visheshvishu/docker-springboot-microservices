@@ -141,6 +141,7 @@ pipeline {
                 script {
                     // optional cleanup
                     sh 'docker stack rm microservices_stack || true'
+                    sh 'docker system prune -f'
                     sleep(time: 10, unit: 'SECONDS') // wait for cleanup
                     deploy_build_swarm()
                 }
