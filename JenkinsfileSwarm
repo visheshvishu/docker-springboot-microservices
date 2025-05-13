@@ -30,108 +30,111 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+        stage('SonarQube Scan') {
             steps {
                 script {
-                    def services = [
-                        'admin-server',
-                        'config-server',
-                        'eureka-server',
-                        'oauth2-server',
-                        'customer-service',
-                        'order-service',
-                        'zuul-server'
-                    ]
-
-                    for (service in services) {
-                        def imageName = "${service}"
-                        def contextDir = "${service}"
-                        docker_build(imageName, 'latest', contextDir)
-                    }
+                    sonar_scan("$ScannerHome", "sonar", "springboot-app", "springboot-app", "v1", ".")
                 }
             }
         }
 
-        stage('Code Quality & Security Checks') {
-            parallel {
-                stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            sonar_scan("${scannerHome}", "sonar", "springboot-app", "springboot-app", "v1", ".")
-                        }
-                    }
-                }
+      
 
-                stage('OWASP Dependency Check') {
-                    steps {
-                        dependencyCheck additionalArguments: ''' 
-                            -o './owasp-report'
-                            -s './'
-                            -f 'ALL' 
-                            --prettyPrint''', odcInstallation: 'owasp'
-
-                        dependencyCheckPublisher pattern: 'owasp-report/dependency-check-report.xml'
-                    }
-                }
-            }
-        }
-
-        stage('SonarQube Quality Gate') {
+        stage('Quality Gate') {
             steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
                 }
             }
-        }
-
-        stage('Trivy Scan Docker Images') {
-                    steps {
-                        script {
-                            def services = [
-                                'admin-server',
-                                'config-server',
-                                'eureka-server',
-                                'oauth2-server',
-                                'customer-service',
-                                'order-service',
-                                'zuul-server'
-                            ]
-
-                            sh 'mkdir -p trivy-reports'
-
-                            for (service in services) {
-                                def imageName = "${service}:latest"
-                                echo "Scanning ${imageName} with Trivy..."
-                                sh """
-                                    trivy image --exit-code 1 --severity CRITICAL,HIGH --format table \
-                                    -o trivy-reports/trivy-${service}.txt ${imageName} || true
-                                """
-                            }
-
-                            archiveArtifacts artifacts: 'trivy-reports/*.txt', fingerprint: true
-                        }
-                    }
-                }
-
-        stage('Push to Docker Hub') {
+        }    
+        
+        stage('OWASP Dependency Check') {
             steps {
-                script {
-                    def services = [
-                        'admin-server',
-                        'config-server',
-                        'eureka-server',
-                        'oauth2-server',
-                        'customer-service',
-                        'order-service',
-                        'zuul-server'
-                    ]
-
-                    for (service in services) {
-                        docker_push(service, 'visheshvishu', 'dockerhub', 'latest')
-                    }
-                }
+                dependencyCheck additionalArguments: ''' 
+                    -o './owasp-report'
+                    -s './'
+                    -f 'ALL' 
+                    --prettyPrint''', odcInstallation: 'owasp'
+        
+        dependencyCheckPublisher pattern: 'owasp-report/dependency-check-report.xml'
             }
         }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                  def services = [
+                'admin-server',
+                'config-server',
+                'eureka-server',
+                'oauth2-server',
+                'customer-service',
+                'order-service',
+                'zuul-server'
+            ]
+
+            for (service in services) {
+                def imageName = "${service}"
+                def contextDir = "${service}"
+                
+                docker_build(imageName, 'latest', contextDir)
+                 }
+            }
+        }
+      }
+
+        stage('Trivy Scan Docker Images') {
+    steps {
+        script {
+            def services = [
+                'admin-server',
+                'config-server',
+                'eureka-server',
+                'oauth2-server',
+                'customer-service',
+                'order-service',
+                'zuul-server'
+            ]
+
+            sh 'mkdir -p trivy-reports' // Create folder if not exists
+
+            for (service in services) {
+                def imageName = "${service}:latest"
+
+                echo "Scanning image ${imageName} with Trivy..."
+                sh """
+                    trivy image --exit-code 1 --severity CRITICAL,HIGH --format table -o trivy-reports/trivy-${service}.txt ${imageName} || true
+                """
+            }
+
+            archiveArtifacts artifacts: 'trivy-reports/*.txt', fingerprint: true
+        }
+    }
+}
+
+        
+         stage('push to dockerhub') {
+            steps {
+                script{
+                      
+                    def services = [
+                'admin-server',
+                'config-server',
+                'eureka-server',
+                'oauth2-server',
+                'customer-service',
+                'order-service',
+                'zuul-server'
+            ]
+
+            for (service in services) {
+                def imageName = "${service}"
+                     docker_push(imageName, 'visheshvishu', 'dockerhub', 'latest')
+                }
+            }        
+        }
+    }
+
 
         stage('Deploy with Docker Swarm') {
             steps {
