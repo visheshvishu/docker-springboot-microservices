@@ -1,0 +1,164 @@
+@Library('Shared') _
+
+pipeline {
+    agent { label 'gcp' }
+
+    environment {
+        scannerHome = tool 'sonar'
+    }
+
+    stages {
+
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Clone from GitHub') {
+            steps {
+                script {
+                    git_checkout("https://github.com/visheshvishu/docker-springboot-microservices.git", "main")
+                    sh 'rm -rf frontend'
+                }
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    def services = [
+                        'admin-server',
+                        'config-server',
+                        'eureka-server',
+                        'oauth2-server',
+                        'customer-service',
+                        'order-service',
+                        'zuul-server'
+                    ]
+
+                    for (service in services) {
+                        def imageName = "${service}"
+                        def contextDir = "${service}"
+                        docker_build(imageName, 'latest', contextDir)
+                    }
+                }
+            }
+        }
+
+        stage('Code Quality & Security Checks') {
+            parallel {
+                stage('SonarQube Analysis') {
+                    steps {
+                        script {
+                            sonar_scan("${scannerHome}", "sonar", "springboot-app", "springboot-app", "v1", ".")
+                        }
+                    }
+                }
+
+                stage('OWASP Dependency Check') {
+                    steps {
+                        dependencyCheck additionalArguments: ''' 
+                            -o './owasp-report'
+                            -s './'
+                            -f 'ALL' 
+                            --prettyPrint''', odcInstallation: 'owasp'
+
+                        dependencyCheckPublisher pattern: 'owasp-report/dependency-check-report.xml'
+                    }
+                }
+
+                stage('Trivy Scan Docker Images') {
+                    steps {
+                        script {
+                            def services = [
+                                'admin-server',
+                                'config-server',
+                                'eureka-server',
+                                'oauth2-server',
+                                'customer-service',
+                                'order-service',
+                                'zuul-server'
+                            ]
+
+                            sh 'mkdir -p trivy-reports'
+
+                            for (service in services) {
+                                def imageName = "${service}:latest"
+                                echo "Scanning ${imageName} with Trivy..."
+                                sh """
+                                    trivy image --exit-code 1 --severity CRITICAL,HIGH --format table \
+                                    -o trivy-reports/trivy-${service}.txt ${imageName} || true
+                                """
+                            }
+
+                            archiveArtifacts artifacts: 'trivy-reports/*.txt', fingerprint: true
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Quality Gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    def services = [
+                        'admin-server',
+                        'config-server',
+                        'eureka-server',
+                        'oauth2-server',
+                        'customer-service',
+                        'order-service',
+                        'zuul-server'
+                    ]
+
+                    for (service in services) {
+                        docker_push(service, 'visheshvishu', 'dockerhub', 'latest')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy with Docker Swarm') {
+            steps {
+                script {
+                    // optional cleanup
+                    sh 'docker stack rm microservices_stack || true'
+                    sleep(time: 10, unit: 'SECONDS') // wait for cleanup
+                    deploy_build_swarm()
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            emailext(
+                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: "Job Succeeded: ${env.BUILD_URL}",
+                to: 'vishesh.gupta@oodles.io'
+            )
+        }
+        failure {
+            emailext(
+                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: "Job Failed: ${env.BUILD_URL}",
+                to: 'vishesh.gupta@oodles.io'
+            )
+        }
+    }
+}
