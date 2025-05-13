@@ -4,7 +4,6 @@ services:
 
   mysql:
     image: mysql:8.0
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: e_commerce
@@ -28,10 +27,13 @@ services:
       - "2181:2181"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    restart: always
     depends_on:
       - zookeeper
     environment:
@@ -46,6 +48,10 @@ services:
       - "19092:19092"
     networks:
       - micro_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   config-server:
     image: visheshvishu/config-server:latest
