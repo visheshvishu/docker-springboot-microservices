@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-server
+  template:
+    metadata:
+      labels:
+        app: admin-server
+    spec:
+      containers:
+      - name: admin-server
+        image: visheshvishu/admin-server:latest
+        ports:
+        - containerPort: 8086
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Waiting 20s for dependencies..."; sleep 20; java -jar /app.jar
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: default
+        # add other environment variables if needed
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-server
+spec:
+  selector:
+    app: admin-server
+  ports:
+  - port: 8086
+    targetPort: 8086
+    nodePort: 30002
+  type: NodePort
+

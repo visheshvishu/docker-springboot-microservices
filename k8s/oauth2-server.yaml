@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-server
+  template:
+    metadata:
+      labels:
+        app: oauth2-server
+    spec:
+      containers:
+      - name: oauth2-server
+        image: visheshvishu/oauth2-server:latest
+        ports:
+        - containerPort: 8082
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Waiting 20s for dependencies..."; sleep 20;
+            java -jar /app.jar
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-server
+spec:
+  selector:
+    app: oauth2-server
+  ports:
+  - port: 8082
+    targetPort: 8082
+    nodePort: 30082
+  type: NodePort
+

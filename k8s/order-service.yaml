@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: visheshvishu/order-service:latest
+        ports:
+        - containerPort: 8084
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Waiting 20s for dependencies..."; sleep 20; java -jar /app.jar
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service
+  ports:
+  - port: 8084
+    targetPort: 8084
+    nodePort: 30084
+  type: NodePort
+

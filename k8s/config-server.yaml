@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+      - name: config-server
+        image: visheshvishu/config-server:latest  # Replace if needed
+        ports:
+        - containerPort: 8081
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Waiting 20s for dependencies..."; sleep 20; java -jar /app.jar
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+spec:
+  selector:
+    app: config-server
+  ports:
+  - port: 8081
+    targetPort: 8081
+  type: ClusterIP
+
