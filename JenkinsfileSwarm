@@ -136,18 +136,28 @@ pipeline {
     }
 
 
-        stage('Deploy with Docker Swarm') {
-            steps {
-                script {
-                    // optional cleanup
-                    sh 'docker stack rm microservices_stack || true'
-                    sh 'docker system prune -f'
-                    sleep(time: 10, unit: 'SECONDS') // wait for cleanup
-                    deploy_build_swarm()
-                }
-            }
+       stage('Deploy with Kubernetes') {
+    steps {
+        script {
+            // Optional: Cleanup previous deployment if needed
+            sh 'kubectl delete -f k8s/ --ignore-not-found=true'
+
+            // Apply all Kubernetes manifests in the k8s folder
+            sh 'kubectl apply -f k8s/'
+
+            // Optionally wait for pods to be ready
+            sh '''
+                kubectl rollout status deployment/admin-server -n default
+                kubectl rollout status deployment/config-server -n default
+                kubectl rollout status deployment/eureka-server -n default
+                kubectl rollout status deployment/oauth2-server -n default
+                kubectl rollout status deployment/customer-service -n default
+                kubectl rollout status deployment/order-service -n default
+                kubectl rollout status deployment/zuul-server -n default
+            '''
         }
     }
+}
 
     post {
         success {
