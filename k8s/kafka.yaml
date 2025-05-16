@@ -30,7 +30,11 @@ spec:
         - name: KAFKA_INTER_BROKER_LISTENER_NAME
           value: PLAINTEXT_INTERNAL
         - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-          value: "1"        
+          value: "1"
+        - name: KAFKA_CFG_PROCESS_ROLES  # Disable KRaft mode
+          value: ""
+        - name: KAFKA_CFG_NODE_ID        # Required when disabling KRaft
+          value: ""       
 ---
 apiVersion: v1
 kind: Service
