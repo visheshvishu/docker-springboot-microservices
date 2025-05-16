@@ -37,7 +37,7 @@ eureka:
     registry-fetch-interval-seconds: 30
   instance:
     prefer-ip-address: true
-    ip-address: 34.93.231.215
+    ip-address: 34.93.136.175
 
 
 zuul:
