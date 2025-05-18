@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: kafka
 spec:
-  serviceName: kafka
   replicas: 1
   selector:
     matchLabels:
