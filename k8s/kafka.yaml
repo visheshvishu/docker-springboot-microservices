@@ -20,7 +20,7 @@ spec:
         - containerPort: 19092
         env:
         - name: KAFKA_ZOOKEEPER_CONNECT
-          value: zookeeper:2181
+          value: zookeeper:30081
         - name: KAFKA_ADVERTISED_LISTENERS
           value: PLAINTEXT_INTERNAL://kafka:19092,PLAINTEXT_EXTERNAL://34.93.136.175:30092
         - name: KAFKA_LISTENERS
