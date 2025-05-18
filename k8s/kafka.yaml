@@ -46,8 +46,8 @@ spec:
   - name: external
     port: 9092
     targetPort: 9092
-    nodePort: 30092  # Exposes Kafka externally (for testing outside cluster)
+   # nodePort: 30092   Exposes Kafka externally (for testing outside cluster)
   - name: internal
     port: 19092
     targetPort: 19092
-  type: NodePort
+  type: ClusterIP
