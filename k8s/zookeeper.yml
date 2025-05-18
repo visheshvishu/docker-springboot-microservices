@@ -31,12 +31,6 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - "zookeeper-ready 2181"
           initialDelaySeconds: 10
           periodSeconds: 5
         volumeMounts:
