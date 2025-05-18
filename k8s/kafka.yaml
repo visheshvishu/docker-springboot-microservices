@@ -40,8 +40,10 @@ spec:
   selector:
     app: kafka
   ports:
-    - port: 9092
-      targetPort: 9092
-    - port: 19092
+    - name: internal
+      port: 19092
       targetPort: 19092
+    - name: external
+      port: 9092
+      targetPort: 9092
   type: ClusterIP
