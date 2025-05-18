@@ -49,14 +49,7 @@ spec:
         volumeMounts:
         - name: kafka-data
           mountPath: /var/lib/kafka/data
-  volumeClaimTemplates:
-  - metadata:
-      name: kafka-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 2Gi
+  
 
 ---
 apiVersion: v1
@@ -69,4 +62,4 @@ spec:
     targetPort: 9092
   selector:
     app: kafka
-  clusterIP: None
+  type: clusterIP
