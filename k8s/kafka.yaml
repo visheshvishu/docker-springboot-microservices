@@ -1,8 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: kafka
 spec:
+  serviceName: kafka
   replicas: 1
   selector:
     matchLabels:
@@ -18,26 +19,45 @@ spec:
         ports:
         - containerPort: 9092
         env:
-        # Critical configuration
-        - name: KAFKA_CFG_PROCESS_ROLES
-          value: ""  # Disables KRaft mode
-        - name: KAFKA_CFG_NODE_ID
-          value: ""
+        - name: KAFKA_BROKER_ID
+          value: "1"
         - name: KAFKA_ZOOKEEPER_CONNECT
-          value: zookeeper:2181
-        # Standard configuration
-        - name: KAFKA_ADVERTISED_LISTENERS
-          value: PLAINTEXT://kafka:9092
+          value: "zookeeper:2181"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: PLAINTEXT:PLAINTEXT
-        - name: KAFKA_INTER_BROKER_LISTENER_NAME
-          value: PLAINTEXT
-        # Resource settings
-        - name: KAFKA_HEAP_OPTS
-          value: "-Xmx1G -Xms1G"
-        # Debug logging
-        - name: KAFKA_LOG4J_ROOT_LOGLEVEL
-          value: "DEBUG"
+          value: "PLAINTEXT:PLAINTEXT"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+          value: "true"
+        - name: KAFKA_NUM_PARTITIONS
+          value: "1"
+        - name: KAFKA_DEFAULT_REPLICATION_FACTOR
+          value: "1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        readinessProbe:
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /var/lib/kafka/data
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
 
 ---
 apiVersion: v1
@@ -45,15 +65,9 @@ kind: Service
 metadata:
   name: kafka
 spec:
+  ports:
+  - port: 9092
+    targetPort: 9092
   selector:
     app: kafka
-  ports:
-    - name: client
-      port: 9092
-      targetPort: 9092
-      # If you need external access, uncomment:
-      # nodePort: 30092
-  # For internal cluster-only access:
-  type: ClusterIP
-  # For external access:
-  # type: NodePort
+  clusterIP: None
