@@ -37,8 +37,9 @@ eureka:
     instance-info-replication-interval-seconds: 30
     registry-fetch-interval-seconds: 30
   instance:
-    prefer-ip-address: true
-    ip-address: 34.93.136.175
+    prefer-ip-address: false
+    hostname: customer-service
+    non-secure-port: 8085
 
 
 
