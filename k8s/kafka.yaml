@@ -1,3 +1,55 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: kafka
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: kafka
+#   template:
+#     metadata:
+#       labels:
+#         app: kafka
+#     spec:
+#       containers:
+#       - name: kafka
+#         image: confluentinc/cp-kafka:7.3.2
+#         ports:
+#         - containerPort: 9092
+#         - containerPort: 19092
+#         env:
+#         - name: KAFKA_ZOOKEEPER_CONNECT
+#           value: "zookeeper:2181"
+#         - name: KAFKA_BROKER_ID
+#           value: "1"
+#         - name: KAFKA_ADVERTISED_LISTENERS
+#           value: "PLAINTEXT://kafka:19092,PLAINTEXT_HOST://kafka:9092"
+#         - name: KAFKA_LISTENERS
+#           value: "PLAINTEXT://:19092,PLAINTEXT_HOST://:9092"
+#         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+#           value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+#         - name: KAFKA_INTER_BROKER_LISTENER_NAME
+#           value: "PLAINTEXT"
+          
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: kafka
+# spec:
+#   selector:
+#     app: kafka
+#   ports:
+#   - name: external
+#     port: 9092
+#     targetPort: 9092
+#    # nodePort: 30092   Exposes Kafka externally (for testing outside cluster)
+#   - name: internal
+#     port: 19092
+#     targetPort: 19092
+#   type: ClusterIP
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,26 +65,25 @@ spec:
         app: kafka
     spec:
       containers:
-      - name: kafka
-        image: confluentinc/cp-kafka:7.3.2
-        ports:
-        - containerPort: 9092
-        - containerPort: 19092
-        env:
-        - name: KAFKA_ZOOKEEPER_CONNECT
-          value: "zookeeper:2181"
-        - name: KAFKA_BROKER_ID
-          value: "1"
-        - name: KAFKA_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://kafka:19092,PLAINTEXT_HOST://kafka:9092"
-        - name: KAFKA_LISTENERS
-          value: "PLAINTEXT://:19092,PLAINTEXT_HOST://:9092"
-        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-        - name: KAFKA_INTER_BROKER_LISTENER_NAME
-          value: "PLAINTEXT"
-          
+        - name: kafka
+          image: bitnami/kafka:latest
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper:2181"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka:9092"
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -41,11 +92,7 @@ spec:
   selector:
     app: kafka
   ports:
-  - name: external
-    port: 9092
-    targetPort: 9092
-   # nodePort: 30092   Exposes Kafka externally (for testing outside cluster)
-  - name: internal
-    port: 19092
-    targetPort: 19092
-  type: ClusterIP
+    - protocol: TCP
+      port: 9092
+      targetPort: 9092
+
