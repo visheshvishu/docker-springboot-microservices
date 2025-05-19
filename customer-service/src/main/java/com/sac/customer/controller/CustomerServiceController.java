@@ -20,7 +20,13 @@ public class CustomerServiceController {
     @ResponseStatus(HttpStatus.CREATED)
     public String addCustomer(@RequestBody CustomerBean customer) {
         LOG.debug("==============Customer created============================");
+        // return customerService.addCustomer(customer);
+        try {
         return customerService.addCustomer(customer);
+    } catch (Exception e) {
+        LOG.error("Exception occurred while creating customer", e);  // 🧠 KEY LINE
+        throw e;  // Let Spring return 500, but log it
+    }
 
     }
 
