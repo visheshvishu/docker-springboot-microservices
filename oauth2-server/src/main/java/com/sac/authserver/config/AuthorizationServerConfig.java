@@ -43,7 +43,7 @@ public class AuthorizationServerConfig extends
                 .secret("{noop}secret")
                 .authorizedGrantTypes("authorization_code", "implicit", "password", "client_credentials", "refresh_token")
                 .scopes("read")
-                .redirectUris("http://oauth2-server:9191/x")
+                .redirectUris("http://customer-service:9191/x")
                 .accessTokenValiditySeconds(86400); // 24 hours
     }
 
