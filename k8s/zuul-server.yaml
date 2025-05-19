@@ -32,4 +32,5 @@ spec:
   ports:
   - port: 8083
     targetPort: 8083
-  type: ClusterIP
+    nodePort: 30003
+  type: NodePort
