@@ -16,23 +16,21 @@ spec:
       - name: kafka
         image: confluentinc/cp-kafka:7.5.0
         ports:
-        - containerPort: 9092
-        - containerPort: 19092
+        - containerPort: 9093
+        - containerPort: 29093
         env:
         - name: KAFKA_ZOOKEEPER_CONNECT
-          value: zookeeper:2181
+          value: "zookeeper:2181"
         - name: KAFKA_BROKER_ID
           value: "0"
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: PLAINTEXT_INTERNAL://kafka.default.svc.cluster.local:19092
+          value: "PLAINTEXT://kafka:29093,PLAINTEXT_HOST://kafka:9093"
         - name: KAFKA_LISTENERS
-          value: PLAINTEXT_INTERNAL://0.0.0.0:19092,PLAINTEXT_EXTERNAL://0.0.0.0:9092
+          value: "PLAINTEXT://:29093,PLAINTEXT_HOST://:9093"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+          value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
         - name: KAFKA_INTER_BROKER_LISTENER_NAME
-          value: PLAINTEXT_INTERNAL
-        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-          value: "1"
+          value: "PLAINTEXT"
           
 ---
 apiVersion: v1
@@ -44,10 +42,10 @@ spec:
     app: kafka
   ports:
   - name: external
-    port: 9092
-    targetPort: 9092
+    port: 9093
+    targetPort: 9093
    # nodePort: 30092   Exposes Kafka externally (for testing outside cluster)
   - name: internal
-    port: 19092
-    targetPort: 19092
+    port: 29093
+    targetPort: 29093
   type: ClusterIP
