@@ -1,10 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: admin-ingress
+  name: springboot-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
@@ -12,9 +12,25 @@ spec:
     http:
       paths:
       - pathType: Prefix
+        path: /eureka(/|$)(.*)
+        backend:
+          service:
+            name: eureka-server
+            port:
+              number: 8080
+
+      - pathType: Prefix
         path: /admin(/|$)(.*)
         backend:
           service:
             name: admin-server
             port:
               number: 8086
+
+      - pathType: Prefix
+        path: /(.*)
+        backend:
+          service:
+            name: zuul-server      # fix this to actual zuul service name
+            port:
+              number: 8083
