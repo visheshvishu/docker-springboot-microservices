@@ -3,33 +3,17 @@ kind: Ingress
 metadata:
   name: springboot-ingress
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /  # Strip /admin prefix
 spec:
   ingressClassName: nginx
   rules:
   - host: springboot.local
     http:
       paths:
-      - pathType: Prefix
-        path: /eureka
+      - path: /admin
+        pathType: Prefix
         backend:
           service:
-            name: eureka-server
-            port:
-              number: 8080
-
-      - pathType: Prefix
-        path: /admin
-        backend:
-          service:
-            name: admin-server
-            port:
-              number: 8086
-
-      # - pathType: Prefix
-      #   path: /(.*)
-      #   backend:
-      #     service:
-      #       name: zuul-server      # fix this to actual zuul service name
-      #       port:
-      #         number: 8083
+            name: admin-server  # Must match Service name
+            port: 
+              number: 8086     # Must match Service port (not NodePort)
