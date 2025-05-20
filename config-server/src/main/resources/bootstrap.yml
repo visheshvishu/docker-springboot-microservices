@@ -27,9 +27,6 @@ eureka:
     instance-info-replication-interval-seconds: 30
     registry-fetch-interval-seconds: 30
 
-  instance:
-    preferIpAddress: true
-
 
 
 #Setting logging levels
