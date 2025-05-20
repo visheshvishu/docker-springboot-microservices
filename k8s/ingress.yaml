@@ -3,17 +3,18 @@ kind: Ingress
 metadata:
   name: springboot-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /  # Strip /admin prefix
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-pass-headers: "X-Forwarded-Prefix"
 spec:
   ingressClassName: nginx
   rules:
-  - host: ""
+  - host: springboot.local
     http:
       paths:
-      - path: /admin
+      - path: /admin(/|$)(.*)
         pathType: Prefix
         backend:
           service:
-            name: admin-server  # Must match Service name
+            name: admin-server
             port: 
-              number: 8086     # Must match Service port (not NodePort)
+              number: 8086
