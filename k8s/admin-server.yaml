@@ -35,6 +35,5 @@ spec:
   ports:
   - port: 8086
     targetPort: 8086
-    nodePort: 30002
-  type: NodePort
+  type: ClusterIP
 
