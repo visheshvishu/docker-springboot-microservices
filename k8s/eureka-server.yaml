@@ -29,9 +29,9 @@ metadata:
 spec:
   selector:
     app: eureka-server
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 8080
     targetPort: 8080
-    nodePort: 30001  # You can choose any port between 30000–32767
+   # nodePort: 30001  #You can choose any port between 30000–32767
 
