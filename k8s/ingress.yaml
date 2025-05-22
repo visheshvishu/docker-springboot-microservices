@@ -23,10 +23,10 @@ spec:
             port:
               number: 8080
 
-      - path: /customer
-        pathType: Prefix
-        backend:
-          service:
-            name: customer-service
-            port:
-              number: 8085        
+      # - path: /customer
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: customer-service
+      #       port:
+      #         number: 8085        
