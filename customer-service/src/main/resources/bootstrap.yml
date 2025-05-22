@@ -15,7 +15,7 @@ spring:
   boot:
     admin:
       client:
-        url: http://admin-server:8086
+        url: http://admin-server:8086/admin
         instance:
           service-base-url: http://customer-service:8085
 
