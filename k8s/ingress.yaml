@@ -23,4 +23,12 @@ spec:
             port:
               number: 8080
 
+      - path: /v1/api
+        pathType: Prefix
+        backend:
+          service:
+            name: zuul-server
+            port:
+              number: 8083
+
            
