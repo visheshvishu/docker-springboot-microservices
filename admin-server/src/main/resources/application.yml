@@ -1,7 +1,7 @@
 server:
   port: 8086
-  servlet:
-    context-path: /admin
+  # servlet:
+  #   context-path: /admin
 
 
 spring:
@@ -15,7 +15,7 @@ spring:
       client:
         # You can leave this empty if the server isn't acting as a client
         url: http://admin-server:8086
-      context-path: /admin 
+      # context-path: /admin 
 
   cloud:
     config:
